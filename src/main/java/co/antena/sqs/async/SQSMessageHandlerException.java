@@ -10,6 +10,8 @@ public class SQSMessageHandlerException extends Exception {
 	public SQSMessageHandlerException(Throwable e) {
 		super(e);
 	}
+	
+	public SQSMessageHandlerException(){}
 
 	
 	
