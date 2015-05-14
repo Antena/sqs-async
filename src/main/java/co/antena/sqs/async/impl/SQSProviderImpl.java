@@ -30,7 +30,7 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
  */
 public class SQSProviderImpl implements SQSProvider{
 
-	private static Logger  logger = Logger.getLogger("co.antena.rossirix.batch.async.impl.SQSProviderImpl");
+	private static Logger  logger = Logger.getLogger(SQSProviderImpl.class.getCanonicalName());
 	
 	private AmazonSQS sqs;
 	

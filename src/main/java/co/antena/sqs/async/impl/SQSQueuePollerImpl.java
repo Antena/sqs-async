@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import co.antena.sqs.async.SQSMessageHandler;
-import co.antena.sqs.async.SQSMessageHandlerException;
 import co.antena.sqs.async.SQSProvider;
 import co.antena.sqs.async.SQSQueuePoller;
 
@@ -24,7 +23,7 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 
 public class SQSQueuePollerImpl implements SQSQueuePoller {
 
-	private static Logger  logger = Logger.getLogger("co.antena.rossirix.batch.async.impl.SQSQueuePollerImpl");
+	private static Logger  logger = Logger.getLogger(SQSQueuePollerImpl.class.getCanonicalName());
 	
 	private List<SQSMessageHandler> subscribers = new ArrayList<SQSMessageHandler>();
 	private SQSProvider sqsProvider;
@@ -39,7 +38,9 @@ public class SQSQueuePollerImpl implements SQSQueuePoller {
 	
 	
 	/**
-	 * Start polling
+	 * Starts polling
+	 * If the SQSMessageHandler returns true, then the message is marked for delete.
+	 * But if any of the SQSMessageHandler s returns false then the message is not deleted.
 	 */
 	@Override
 	public void start() {
@@ -57,20 +58,18 @@ public class SQSQueuePollerImpl implements SQSQueuePoller {
 				logger.info("end long polling");
 			}
 			
-			boolean exception;
+			boolean delete;
 			for (Message message : messages) {
 				logger.info("Messagge received");
-				exception = false;
+				delete = true;
 				for(SQSMessageHandler messageHandler : this.subscribers){
 					logger.info("Passing to suscriber : " + messageHandler.toString());
-					try {
-						messageHandler.handleMessage(message);
-					} catch (SQSMessageHandlerException e) {
-						logger.error("Error processsing message", e);
-						exception = true;
+					if(!messageHandler.handleMessage(message)){
+						delete = false;
+						logger.warn("Message delete prevented by : " + messageHandler.toString());
 					}
 				}
-				if(!exception){
+				if(delete){
 					logger.info("Deletting message : " + message.toString());
 					this.sqsProvider.deleteMessage(message, queueUrl);					
 				} else {
