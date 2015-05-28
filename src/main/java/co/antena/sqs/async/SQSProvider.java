@@ -67,5 +67,11 @@ public interface SQSProvider {
 	public void deleteQueue(String url);
 	
 	public SQSQueuePoller getPoller(String queueUrl);
+
+	List<Message> receiveMessage(String url, int qMessages);
+
+	List<Message> receiveLPMessage(String url, int qMessages);
+
+	void deleteMessageBatch(List<Message> messages, String queueUrl);
 	
 }

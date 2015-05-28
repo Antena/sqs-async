@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 
 
 
+
+
 import co.antena.sqs.async.SQSProvider;
 import co.antena.sqs.async.SQSQueuePoller;
 
@@ -17,6 +19,8 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -56,11 +60,45 @@ public class SQSProviderImpl implements SQSProvider{
 		
 		return ret;
 	}
+	
+	@Override
+	public List<Message> receiveMessage(String url, int qMessages) {
+
+		logger.debug("Receiving long polling queue : " + url);
+		
+		ReceiveMessageRequest rmr = new ReceiveMessageRequest(url);
+		rmr.setMaxNumberOfMessages(qMessages);
+		
+		List<Message> ret = new ArrayList<Message>();
+		try{
+			ret = this.sqs.receiveMessage(rmr).getMessages();
+		}catch(Exception e){
+			logger.error("Exception while receiving message", e);
+		}
+		
+		logger.debug("Return receive long polling queue : " + url + " - qmessages : " + ret.size());
+		
+		return ret;
+	}
 
 	@Override
 	public void deleteMessage(Message message, String queueUrl) {
 		logger.debug("Deleting message : " + message.getBody() + " for queue : " +  queueUrl);
 		sqs.deleteMessage(new DeleteMessageRequest(queueUrl, message.getReceiptHandle()));
+	}
+	
+	@Override
+	public void deleteMessageBatch(List<Message> messages, String queueUrl) {
+		logger.debug("Deleting messages batch : " + messages.size() + " for queue : " +  queueUrl);
+
+		List<DeleteMessageBatchRequestEntry> entries = new ArrayList<DeleteMessageBatchRequestEntry>(messages.size());
+		for(Message msg : messages){
+			entries.add(new DeleteMessageBatchRequestEntry(msg.getMessageId(), msg.getReceiptHandle()));
+		}
+		
+		DeleteMessageBatchRequest dmbr = new DeleteMessageBatchRequest(queueUrl, entries);
+		
+		sqs.deleteMessageBatch(dmbr);
 	}
 
 	@Override
@@ -99,6 +137,28 @@ public class SQSProviderImpl implements SQSProvider{
 		logger.debug("Receiving long polling queue : " + url);
 		
 		ReceiveMessageRequest rmr = new ReceiveMessageRequest(url);
+		rmr.setWaitTimeSeconds(20);
+		
+		List<Message> ret = new ArrayList<Message>();
+		try{
+			ret = this.sqs.receiveMessage(rmr).getMessages();
+		}catch(Exception e){
+			logger.error("Exception while receiving message", e);
+		}
+		
+		logger.debug("Return receive long polling queue : " + url + " - qmessages : " + ret.size());
+		
+		return ret;
+
+	}
+	
+	@Override
+	public List<Message> receiveLPMessage(String url, int qMessages) {
+		
+		logger.debug("Receiving long polling queue : " + url);
+		
+		ReceiveMessageRequest rmr = new ReceiveMessageRequest(url);
+		rmr.setMaxNumberOfMessages(qMessages);
 		rmr.setWaitTimeSeconds(20);
 		
 		List<Message> ret = new ArrayList<Message>();
