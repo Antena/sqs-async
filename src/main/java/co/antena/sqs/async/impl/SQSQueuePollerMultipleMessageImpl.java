@@ -54,6 +54,11 @@ public class SQSQueuePollerMultipleMessageImpl implements SQSQueuePoller {
 				messages = this.sqsProvider.receiveLPMessage(this.queueUrl, this.qMessages);
 				logger.info("end long polling");
 			}
+			
+			if(messages.isEmpty()){
+				continue;
+			}
+			
 			recvTime = System.currentTimeMillis();			
 			
 			toDeleteMessages = new ArrayList<Message>(messages.size());

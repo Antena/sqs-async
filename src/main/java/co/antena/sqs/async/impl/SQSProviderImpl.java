@@ -84,7 +84,13 @@ public class SQSProviderImpl implements SQSProvider{
 	@Override
 	public void deleteMessage(Message message, String queueUrl) {
 		logger.debug("Deleting message : " + message.getBody() + " for queue : " +  queueUrl);
-		sqs.deleteMessage(new DeleteMessageRequest(queueUrl, message.getReceiptHandle()));
+		
+		try{
+			sqs.deleteMessage(new DeleteMessageRequest(queueUrl, message.getReceiptHandle()));
+		}catch(Exception e){
+			logger.error("Exception while deleting message", e);
+		}
+		
 	}
 	
 	@Override
@@ -98,37 +104,79 @@ public class SQSProviderImpl implements SQSProvider{
 		
 		DeleteMessageBatchRequest dmbr = new DeleteMessageBatchRequest(queueUrl, entries);
 		
-		sqs.deleteMessageBatch(dmbr);
+		try {
+			sqs.deleteMessageBatch(dmbr);
+		}catch(Exception e){
+			logger.error("Exception while deleting messages batch", e);
+		}
+		
 	}
 
 	@Override
 	public String createQueue(String queueName) {
 		logger.debug("Creating queue : " +  queueName);
-		return this.sqs.createQueue(queueName).getQueueUrl();
+		String ret = null;
+
+		try {
+			ret = this.sqs.createQueue(queueName).getQueueUrl();
+		}catch(Exception e){
+			logger.error("Exception while creating queue", e);
+		}
+		
+		return ret;
 	}
 
 	@Override
 	public List<String> listQueues(String prefix) {
 		logger.debug("Listing queues with prefix : " + prefix);
-		return this.sqs.listQueues(prefix).getQueueUrls();
+
+		List<String> ret = null;
+		try{
+			ret = this.sqs.listQueues(prefix).getQueueUrls();
+		}catch(Exception e){
+			logger.error("Exception while listing queues with prefix", e);
+		}
+		
+		return ret;
 	}
 
 	@Override
 	public List<String> listQueues() {
 		logger.debug("Listing all queues");
-		return this.sqs.listQueues().getQueueUrls();
+
+		List<String> ret = null;
+		try{
+			this.sqs.listQueues().getQueueUrls();
+		}catch(Exception e){
+			logger.error("Exception while listing queues", e);
+		}
+		
+		return ret;
 	}
 
 	@Override
 	public String sendMessage(String url, String body) {
 		logger.debug("Sending message : " + body + " to queue : " + url);
-		return sqs.sendMessage(url, body).getMessageId();
+	
+		String ret = null;
+		try { 
+			ret = sqs.sendMessage(url, body).getMessageId();
+		}catch(Exception e){
+			logger.error("Exception while sendind message", e);
+		}
+
+		return ret;
 	}
 
 	@Override
 	public void deleteQueue(String url) {
 		logger.debug("Deleting queue : " + url);
-		this.sqs.deleteQueue(url);
+		try{
+			this.sqs.deleteQueue(url);
+		}catch(Exception e){
+			logger.error("Exception while deleting queue", e);
+		}
+		
 	}
 
 	@Override
