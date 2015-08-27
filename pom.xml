@@ -16,7 +16,7 @@
 
   <dependencies>
   	<dependency>
-		<groupId>com.amazonaws</groupId>		
+		<groupId>com.amazonaws</groupId>
 		<artifactId>aws-java-sdk</artifactId>
 		<version>1.9.6</version>
 	</dependency>
@@ -32,4 +32,16 @@
 		<version>1.2.17</version>
 	</dependency>
   </dependencies>
+  <distributionManagement>
+		<snapshotRepository>
+			<id>local-release</id>
+			<name>libs-snapshot-local</name>
+			<url>http://dev-antena.com:8081/artifactory/libs-snapshot-local</url>
+		</snapshotRepository>
+		<repository>
+			<id>central</id>
+			<name>libs-release-local</name>
+			<url>http://dev-antena.com:8081/artifactory/libs-release-local</url>
+		</repository>
+	</distributionManagement>
 </project>
