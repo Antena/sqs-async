@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 import co.antena.sqs.async.SQSMessageHandler;
 import co.antena.sqs.async.SQSProvider;
@@ -20,7 +19,7 @@ import com.amazonaws.services.sqs.model.Message;
  *
  * @author gonzalo
  */
-@Service
+// @Service
 public class SQSQueuePollerImpl implements SQSQueuePoller {
 
 	private static Logger logger = Logger.getLogger(SQSQueuePollerImpl.class.getCanonicalName());
@@ -30,6 +29,14 @@ public class SQSQueuePollerImpl implements SQSQueuePoller {
 	private SQSProvider sqsProvider;
 	@Value("${queue.url}")
 	private String queueUrl;
+
+	@Autowired
+	private SQSMessageHandler handler;
+
+	// @PostConstruct
+	// public void initIt() throws Exception {
+	// subscribers.add(handler);
+	// }
 
 	/**
 	 * Starts polling If the SQSMessageHandler returns true, then the message is

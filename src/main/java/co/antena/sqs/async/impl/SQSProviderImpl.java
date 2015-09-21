@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import co.antena.sqs.async.SQSProvider;
 import co.antena.sqs.async.SQSQueuePoller;
@@ -22,12 +20,10 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
  *
  * @author gonzalo
  */
-@Service
 public class SQSProviderImpl implements SQSProvider {
 
 	private static Logger logger = Logger.getLogger(SQSProviderImpl.class.getCanonicalName());
 
-	@Autowired
 	private AmazonSQS sqs;
 
 	@Override
@@ -90,6 +86,10 @@ public class SQSProviderImpl implements SQSProvider {
 	public SQSQueuePoller getPoller(String queueUrl) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public AmazonSQS getSqs() {
+		return sqs;
 	}
 
 	@Override
@@ -210,4 +210,9 @@ public class SQSProviderImpl implements SQSProvider {
 
 		return ret;
 	}
+
+	public void setSqs(AmazonSQS sqs) {
+		this.sqs = sqs;
+	}
+
 }
